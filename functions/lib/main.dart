@@ -38,36 +38,42 @@ Future<dynamic> main(final context) async {
 
   if (context.req.method == 'GET' &&
       context.req.path == "/getGithubContributions") {
-    final token = _getToken(context);
-    final username = context.req.query['username'];
-    final query = '''
-      query {
-        user(login: "$username") {
-          contributionsCollection {
-            contributionCalendar {
-              totalContributions
-              weeks {
-                contributionDays {
-                  date
-                  contributionCount
-                }
+    try {
+      final token = _getToken(context);
+      final username = context.req.query['username'];
+      final query = '''
+    query {
+      user(login: "$username") {
+        contributionsCollection {
+          contributionCalendar {
+            totalContributions
+            weeks {
+              contributionDays {
+                date
+                contributionCount
               }
             }
           }
         }
       }
-    ''';
+    }
+  ''';
 
-    final response = await dio.postUri(
-      Uri.parse(UrlHelper.githubApiUrl),
-      options: Options(
-        contentType: 'application/json',
-        headers: {
-          HttpHeaders.authorizationHeader: 'Bearer $token',
-        },
-      ),
-      data: jsonEncode({'query': query}),
-    );
+      final response = await dio.postUri(
+        Uri.parse(UrlHelper.githubApiUrl),
+        options: Options(
+          contentType: 'application/json',
+          headers: {
+            HttpHeaders.authorizationHeader: 'Bearer $token',
+          },
+        ),
+        data: jsonEncode({'query': query}),
+      );
+    } on Exception catch (e) {
+      return context.res.json({
+        'error': e.toString(),
+      });
+    }
 
     if (response.statusCode == 200) {
       var data = response.data;
