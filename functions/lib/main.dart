@@ -28,6 +28,11 @@ Future<dynamic> main(final context) async {
     return context.res.text('Pong');
   }
 
+
+  if (context.req.path == "/tic") {
+    return context.res.text('Tac');
+  }
+
   return context.res.json({
     'motto': 'Build like a team of hundreds_',
     'learn': 'https://appwrite.io/docs',
