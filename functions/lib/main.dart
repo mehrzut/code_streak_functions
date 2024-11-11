@@ -38,8 +38,8 @@ Future<dynamic> main(final context) async {
 
   if (context.req.method == 'GET' &&
       context.req.path == "/getGithubContributions") {
+    final token = _getToken(context);
     try {
-      final token = _getToken(context);
       final username = context.req.query['username'];
       final query = '''
     query {
@@ -85,6 +85,14 @@ Future<dynamic> main(final context) async {
           'statusCode': response.statusCode,
         });
       }
+    } on DioException catch (e) {
+      return context.res.json({
+        'error': e.error,
+        'message': e.message,
+        'users': users,
+        'token': token,
+        'query': context.req.query,
+      });
     } on Exception catch (e) {
       return context.res.json({
         'error': e.toString(),
