@@ -69,26 +69,25 @@ Future<dynamic> main(final context) async {
         ),
         data: jsonEncode({'query': query}),
       );
+      if (response.statusCode == 200) {
+        var data = response.data;
+        if (data is String) {
+          data = jsonDecode(response.data);
+        }
+        return context.res.json({
+          'request': context.req.toString(),
+          'query': context.req.query,
+          'data': data
+        });
+      } else {
+        return context.res.json({
+          'statusMessage': response.statusMessage,
+          'statusCode': response.statusCode,
+        });
+      }
     } on Exception catch (e) {
       return context.res.json({
         'error': e.toString(),
-      });
-    }
-
-    if (response.statusCode == 200) {
-      var data = response.data;
-      if (data is String) {
-        data = jsonDecode(response.data);
-      }
-      return context.res.json({
-        'request': context.req.toString(),
-        'query': context.req.query,
-        'data': data
-      });
-    } else {
-      return context.res.json({
-        'statusMessage': response.statusMessage,
-        'statusCode': response.statusCode,
       });
     }
   }
