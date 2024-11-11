@@ -30,7 +30,7 @@ Future<dynamic> main(final context) async {
 
 
   if (context.req.path == "/tic") {
-    return context.res.text('Tac');
+    return context.res.json({"tac":"Toe"});
   }
 
   return context.res.json({
