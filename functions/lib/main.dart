@@ -40,51 +40,56 @@ Future<dynamic> main(final context) async {
       context.req.path == "/getGithubContributions") {
     final token = _getToken(context);
     try {
-      final username = context.req.query['username'];
-      final query = '''
-    query {
-      user(login: "$username") {
-        contributionsCollection {
-          contributionCalendar {
-            totalContributions
-            weeks {
-              contributionDays {
-                date
-                contributionCount
-              }
-            }
-          }
-        }
-      }
-    }
-  ''';
+      //     final username = context.req.query['username'];
+      //     final query = '''
+      //   query {
+      //     user(login: "$username") {
+      //       contributionsCollection {
+      //         contributionCalendar {
+      //           totalContributions
+      //           weeks {
+      //             contributionDays {
+      //               date
+      //               contributionCount
+      //             }
+      //           }
+      //         }
+      //       }
+      //     }
+      //   }
+      // ''';
 
-      final response = await dio.postUri(
-        Uri.parse(UrlHelper.githubApiUrl),
-        options: Options(
-          contentType: 'application/json',
-          headers: {
-            HttpHeaders.authorizationHeader: 'Bearer $token',
-          },
-        ),
-        data: jsonEncode({'query': query}),
-      );
-      if (response.statusCode == 200) {
-        var data = response.data;
-        if (data is String) {
-          data = jsonDecode(response.data);
-        }
-        return context.res.json({
-          'request': context.req.toString(),
-          'query': context.req.query,
-          'data': data
-        });
-      } else {
-        return context.res.json({
-          'statusMessage': response.statusMessage,
-          'statusCode': response.statusCode,
-        });
-      }
+      //     final response = await dio.postUri(
+      //       Uri.parse(UrlHelper.githubApiUrl),
+      //       options: Options(
+      //         contentType: 'application/json',
+      //         headers: {
+      //           HttpHeaders.authorizationHeader: 'Bearer $token',
+      //         },
+      //       ),
+      //       data: jsonEncode({'query': query}),
+      //     );
+      //     if (response.statusCode == 200) {
+      //       var data = response.data;
+      //       if (data is String) {
+      //         data = jsonDecode(response.data);
+      //       }
+      //       return context.res.json({
+      //         'request': context.req.toString(),
+      //         'query': context.req.query,
+      //         'data': data
+      //       });
+      //     } else {
+      //       return context.res.json({
+      //         'statusMessage': response.statusMessage,
+      //         'statusCode': response.statusCode,
+      //       });
+      //     }
+      return context.res.json({
+        'users': users,
+        'token': token,
+        'query': context.req.toString(),
+      });
     } on DioException catch (e) {
       return context.res.json({
         'error': e.error,
