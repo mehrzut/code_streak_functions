@@ -36,9 +36,14 @@ Future<dynamic> main(final context) async {
     return context.res.json({"tac": "Toe"});
   }
 
+  if (context.req.path == "/test") {
+    return context.res.json(
+        {'req': context.req.toString(), 'query': context.req.payload ?? '{}'});
+  }
+
   if (context.req.method == 'GET' &&
       context.req.path == "/getGithubContributions") {
-      // final token = _getToken(context);
+    // final token = _getToken(context);
     try {
       //     final username = context.req.query['username'];
       //     final query = '''
