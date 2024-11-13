@@ -41,6 +41,7 @@ Future<dynamic> main(final context) async {
     String queryParams = '';
     String query = '';
     String queries = '';
+    String queryString = '';
     try {
       payload = context.req.payload ?? '{}';
     } catch (e) {}
@@ -53,6 +54,9 @@ Future<dynamic> main(final context) async {
     try {
       queries = context.req.queries ?? '{}';
     } catch (e) {}
+    try {
+      queryString = context.req.queryString ?? '{}';
+    } catch (e) {}
 
     return context.res.json({
       'req': context.req.toString(),
@@ -61,6 +65,7 @@ Future<dynamic> main(final context) async {
       'queryParams': queryParams,
       'query': query,
       'queries': queries,
+      'queryString': queryString,
     });
   }
 
