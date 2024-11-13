@@ -37,23 +37,13 @@ Future<dynamic> main(final context) async {
   }
 
   if (context.req.path == "/test") {
-    String payload = '';
-    String queryParams = '';
     String query = '';
-    String queries = '';
     String queryString = '';
-    try {
-      payload = context.req.payload ?? '{}';
-    } catch (e) {}
-    try {
-      queryParams = context.req.queryParams ?? '{}';
-    } catch (e) {}
+
     try {
       query = context.req.query.toString();
     } catch (e) {}
-    try {
-      queries = context.req.queries ?? '{}';
-    } catch (e) {}
+
     try {
       queryString = context.req.queryString ?? '{}';
     } catch (e) {}
@@ -61,66 +51,65 @@ Future<dynamic> main(final context) async {
     return context.res.json({
       'req': context.req.toString(),
       'context': context.toString(),
-      'payload': payload,
-      'queryParams': queryParams,
       'query': query,
-      'queries': queries,
       'queryString': queryString,
     });
   }
 
   if (context.req.method == 'GET' &&
       context.req.path == "/getGithubContributions") {
-    // final token = _getToken(context);
+    final token = _getToken(context);
+    final Map<String, dynamic> queryParams =
+        jsonDecode(context.req.query.toString());
     try {
-      //     final username = context.req.query['username'];
-      //     final query = '''
-      //   query {
-      //     user(login: "$username") {
-      //       contributionsCollection {
-      //         contributionCalendar {
-      //           totalContributions
-      //           weeks {
-      //             contributionDays {
-      //               date
-      //               contributionCount
-      //             }
-      //           }
-      //         }
-      //       }
-      //     }
-      //   }
-      // ''';
+      final username = queryParams['username'].toString();
+      final query = '''
+        query {
+          user(login: "$username") {
+            contributionsCollection {
+              contributionCalendar {
+                totalContributions
+                weeks {
+                  contributionDays {
+                    date
+                    contributionCount
+                  }
+                }
+              }
+            }
+          }
+        }
+      ''';
 
-      //     final response = await dio.postUri(
-      //       Uri.parse(UrlHelper.githubApiUrl),
-      //       options: Options(
-      //         contentType: 'application/json',
-      //         headers: {
-      //           HttpHeaders.authorizationHeader: 'Bearer $token',
-      //         },
-      //       ),
-      //       data: jsonEncode({'query': query}),
-      //     );
-      //     if (response.statusCode == 200) {
-      //       var data = response.data;
-      //       if (data is String) {
-      //         data = jsonDecode(response.data);
-      //       }
-      //       return context.res.json({
-      //         'request': context.req.toString(),
-      //         'query': context.req.query,
-      //         'data': data
-      //       });
-      //     } else {
-      //       return context.res.json({
-      //         'statusMessage': response.statusMessage,
-      //         'statusCode': response.statusCode,
-      //       });
-      //     }
+      final response = await dio.postUri(
+        Uri.parse(UrlHelper.githubApiUrl),
+        options: Options(
+          contentType: 'application/json',
+          headers: {
+            HttpHeaders.authorizationHeader: 'Bearer $token',
+          },
+        ),
+        data: jsonEncode({'query': query}),
+      );
+      if (response.statusCode == 200) {
+        var data = response.data;
+        if (data is String) {
+          data = jsonDecode(response.data);
+        }
+        return context.res.json({
+          'request': context.req.toString(),
+          'query': context.req.query,
+          'data': data
+        });
+      } else {
+        return context.res.json({
+          'statusMessage': response.statusMessage,
+          'statusCode': response.statusCode,
+        });
+      }
       return context.res.json({
         'users': users,
-        // 'token': token,
+        'token': token,
         'query': context.req.toString(),
       });
     } on DioException catch (e) {
@@ -147,5 +136,9 @@ Future<dynamic> main(final context) async {
 }
 
 String _getToken(dynamic context) {
-  return context.req.headers['authorization'].split(' ')[1];
+  try {
+    return context.req.headers['authorization'].split(' ')[1];
+  } catch (e) {
+    return '';
+  }
 }
