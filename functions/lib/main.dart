@@ -38,7 +38,7 @@ Future<dynamic> main(final context) async {
 
   if (context.req.method == 'GET' &&
       context.req.path == "/getGithubContributions") {
-    final token = _getToken(context);
+      // final token = _getToken(context);
     try {
       //     final username = context.req.query['username'];
       //     final query = '''
