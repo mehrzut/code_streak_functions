@@ -43,8 +43,14 @@ Future<dynamic> main(final context) async {
     String queries = '';
     try {
       payload = context.req.payload ?? '{}';
+    } catch (e) {}
+    try {
       queryParams = context.req.queryParams ?? '{}';
+    } catch (e) {}
+    try {
       query = context.req.query ?? '{}';
+    } catch (e) {}
+    try {
       queries = context.req.queries ?? '{}';
     } catch (e) {}
 
