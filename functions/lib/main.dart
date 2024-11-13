@@ -133,9 +133,6 @@ Future<dynamic> main(final context) async {
       return context.res.json({
         'error': e.error,
         'message': e.message,
-        'users': users,
-        // 'token': token,
-        'query': context.req.toString(),
       });
     } on Exception catch (e) {
       return context.res.json({
