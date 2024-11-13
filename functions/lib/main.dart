@@ -51,6 +51,8 @@ Future<dynamic> main(final context) async {
     return context.res.json({
       'req': context.req.toString(),
       'context': context.toString(),
+      'url': context.req.url.toString(),
+      'urlType': context.req.url.runtimeType.toString(),
       'query': query,
       'queryString': queryString,
     });
