@@ -56,6 +56,7 @@ Future<dynamic> main(final context) async {
 
     return context.res.json({
       'req': context.req.toString(),
+      'context': context.toString(),
       'payload': payload,
       'queryParams': queryParams,
       'query': query,
