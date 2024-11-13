@@ -60,16 +60,17 @@ Future<dynamic> main(final context) async {
       context.req.path == "/getGithubContributions") {
     Map<String, dynamic> queryParams = {};
     String token = '';
+    String username = '';
     try {
       token = _getToken(context);
       queryParams = jsonDecode(context.req.query.toString());
+      username = queryParams['username'].toString();
     } catch (e) {
       return context.res.json({
-        'message': '',
+        'message': 'initialization error!',
       });
     }
     try {
-      final username = queryParams['username'].toString();
       final query = '''
         query {
           user(login: "$username") {
