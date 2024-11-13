@@ -87,7 +87,7 @@ Future<dynamic> main(final context) async {
       //     }
       return context.res.json({
         'users': users,
-        'token': token,
+        // 'token': token,
         'query': context.req.toString(),
       });
     } on DioException catch (e) {
@@ -95,7 +95,7 @@ Future<dynamic> main(final context) async {
         'error': e.error,
         'message': e.message,
         'users': users,
-        'token': token,
+        // 'token': token,
         'query': context.req.toString(),
       });
     } on Exception catch (e) {
