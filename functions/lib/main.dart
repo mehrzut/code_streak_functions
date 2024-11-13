@@ -63,11 +63,23 @@ Future<dynamic> main(final context) async {
     String username = '';
     try {
       token = _getToken(context);
+    } catch (e) {
+      return context.res.json({
+        'message': 'token error!',
+      });
+    }
+    try {
       queryParams = jsonDecode(context.req.query.toString());
+    } catch (e) {
+      return context.res.json({
+        'message': 'query error!',
+      });
+    }
+    try {
       username = queryParams['username'].toString();
     } catch (e) {
       return context.res.json({
-        'message': 'initialization error!',
+        'message': 'username error!',
       });
     }
     try {
