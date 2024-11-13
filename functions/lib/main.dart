@@ -37,14 +37,23 @@ Future<dynamic> main(final context) async {
   }
 
   if (context.req.path == "/test") {
+    String payload = '';
+    String queryParams = '';
     String query = '';
+    String queries = '';
     try {
-      query = context.req.payload ?? '{}';
+      payload = context.req.payload ?? '{}';
+      queryParams = context.req.queryParams ?? '{}';
+      query = context.req.query ?? '{}';
+      queries = context.req.queries ?? '{}';
     } catch (e) {}
 
     return context.res.json({
       'req': context.req.toString(),
+      'payload': payload,
+      'queryParams': queryParams,
       'query': query,
+      'queries': queries,
     });
   }
 
