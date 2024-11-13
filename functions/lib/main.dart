@@ -141,6 +141,10 @@ Future<dynamic> main(final context) async {
       return context.res.json({
         'error': e.toString(),
       });
+    } catch (e) {
+      return context.res.json({
+        'error': e.toString(),
+      });
     }
   }
 
