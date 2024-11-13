@@ -37,9 +37,14 @@ Future<dynamic> main(final context) async {
   }
 
   if (context.req.path == "/test") {
+    String query = '';
+    try {
+      query = context.req.payload ?? '{}';
+    } catch (e) {}
+
     return context.res.json({
       'req': context.req.toString(),
-      // 'query': context.req.payload ?? '{}',
+      'query': query,
     });
   }
 
