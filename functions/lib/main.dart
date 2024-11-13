@@ -37,8 +37,10 @@ Future<dynamic> main(final context) async {
   }
 
   if (context.req.path == "/test") {
-    return context.res.json(
-        {'req': context.req.toString(), 'query': context.req.payload ?? '{}'});
+    return context.res.json({
+      'req': context.req.toString(),
+      // 'query': context.req.payload ?? '{}',
+    });
   }
 
   if (context.req.method == 'GET' &&
