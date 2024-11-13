@@ -71,7 +71,7 @@ Future<dynamic> main(final context) async {
       });
     }
     try {
-      queryParams = jsonDecode(context.req.query.toString());
+      queryParams = Uri.parse(context.req.url).queryParameters;
     } catch (e) {
       return context.res.json({
         'message': 'query error!',
