@@ -132,6 +132,7 @@ Future<dynamic> main(final context) async {
     } on DioException catch (e) {
       return context.res.json({
         'headers': jsonEncode(e.requestOptions.headers),
+        "token": token,
         'error': e.error,
         'message': e.message,
       });
