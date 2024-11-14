@@ -118,11 +118,7 @@ Future<dynamic> main(final context) async {
         if (data is String) {
           data = jsonDecode(response.data);
         }
-        return context.res.json({
-          'request': context.req.toString(),
-          'query': context.req.query,
-          'data': data
-        });
+        return context.res.json(data);
       } else {
         return context.res.json({
           'statusMessage': response.statusMessage,
