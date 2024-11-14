@@ -157,7 +157,7 @@ Future<dynamic> main(final context) async {
 
 String _getToken(dynamic context) {
   try {
-    return context.req.headers['authorization'].split(' ')[1];
+    return context.req.headers['authorization'].split(' ')[1].split(',')[0];
   } catch (e) {
     return '';
   }
