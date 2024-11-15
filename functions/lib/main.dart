@@ -35,6 +35,9 @@ Future<dynamic> main(final context) async {
   if (context.req.path == "/tic") {
     return context.res.json({"tac": "Toe"});
   }
+  if (context.req.path == "/showHeaders") {
+    return context.res.json(context.req.headers);
+  }
 
   if (context.req.method == 'GET' &&
       context.req.path == "/getGithubContributions") {
