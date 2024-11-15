@@ -126,6 +126,11 @@ Future<dynamic> _getGithubContributes(context, Dio dio) async {
 
   try {
     username = _getQuery(context, key: 'username') ?? '';
+    if (username.isEmpty) {
+      return context.res.json({
+        'message': 'username missing!',
+      });
+    }
   } catch (e) {
     return context.res.json({
       'message': 'username missing!',
@@ -183,9 +188,7 @@ Future<dynamic> _getGithubContributes(context, Dio dio) async {
 
 String _getToken(dynamic context) {
   try {
-    return context.req.headers['token']
-        .split(' ')[1]
-        .split(',')[0];
+    return context.req.headers['token'].split(' ')[1].split(',')[0];
   } catch (e) {
     return '';
   }
