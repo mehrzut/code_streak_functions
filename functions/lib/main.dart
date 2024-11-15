@@ -183,7 +183,7 @@ Future<dynamic> _getGithubContributes(context, Dio dio) async {
 
 String _getToken(dynamic context) {
   try {
-    return context.req.headers[HttpHeaders.authorizationHeader]
+    return context.req.headers['token']
         .split(' ')[1]
         .split(',')[0];
   } catch (e) {
