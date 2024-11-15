@@ -13,9 +13,7 @@ Future<dynamic> main(final context) async {
   final client = Client()
       .setEndpoint(Platform.environment['APPWRITE_FUNCTION_API_ENDPOINT'] ?? '')
       .setProject(Platform.environment['APPWRITE_FUNCTION_PROJECT_ID'] ?? '')
-      .setKey(context.req.headers[HttpHeaders.authorizationHeader] ??
-          context.req.headers['x-appwrite-key'] ??
-          '');
+      .setKey(context.req.headers['x-appwrite-key'] ?? '');
   final users = Users(client);
 
   try {
@@ -103,7 +101,7 @@ Future<dynamic> _getUserInfo(context, Dio dio) async {
       });
     }
   } on DioException catch (e) {
-    return dioError(context, e);
+    return dioError(context, e, token);
   } catch (e) {
     return context.res.json({
       'error': e.toString(),
@@ -172,7 +170,7 @@ Future<dynamic> _getGithubContributes(context, Dio dio) async {
       });
     }
   } on DioException catch (e) {
-    return dioError(context, e);
+    return dioError(context, e, token);
   } catch (e) {
     return context.res.json({
       'error': e.toString(),
@@ -199,10 +197,11 @@ String? _getQuery(dynamic context, {required String key}) {
   }
 }
 
-dynamic dioError(dynamic context, DioException e) {
+dynamic dioError(dynamic context, DioException e, String token) {
   return context.res.json({
     'error': e.error,
     'message': e.message,
-    'headers': jsonEncode(e.requestOptions.headers)
+    'headers': jsonEncode(e.requestOptions.headers),
+    'token': token,
   });
 }
