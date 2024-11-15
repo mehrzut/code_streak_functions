@@ -129,11 +129,13 @@ Future<dynamic> _getGithubContributes(context, Dio dio) async {
     if (username.isEmpty) {
       return context.res.json({
         'message': 'username missing!',
+        'url': context.req.url,
       });
     }
   } catch (e) {
     return context.res.json({
       'message': 'username missing!',
+      'url': context.req.url,
     });
   }
   try {
