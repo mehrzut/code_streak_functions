@@ -56,17 +56,17 @@ Future<dynamic> main(final context) async {
 Future<dynamic> _getUserInfo(context, Dio dio) async {
   String token = '';
 
-  try {
-    token = _getToken(context);
-  } catch (e) {
-    return context.res.json({
-      'message': 'token error!',
-      'statusCode': 401,
-    });
-  }
+  // try {
+  token = _getToken(context);
+  // } catch (e) {
+  //   return context.res.json({
+  //     'message': 'token error!',
+  //     'statusCode': 401,
+  //   });
+  // }
 
-  try {
-    final query = '''
+  // try {
+  final query = '''
        query {
         viewer {
           login
@@ -78,35 +78,35 @@ Future<dynamic> _getUserInfo(context, Dio dio) async {
       }
     ''';
 
-    final response = await dio.postUri(
-      Uri.parse(UrlHelper.githubApiUrl),
-      options: Options(
-        contentType: 'application/json',
-        headers: {
-          HttpHeaders.authorizationHeader: 'Bearer $token',
-        },
-      ),
-      data: jsonEncode({'query': query}),
-    );
-    if (response.statusCode == 200) {
-      var data = response.data;
-      if (data is String) {
-        data = jsonDecode(response.data);
-      }
-      return context.res.json(data);
-    } else {
-      return context.res.json({
-        'statusMessage': response.statusMessage,
-        'statusCode': response.statusCode,
-      });
+  final response = await dio.postUri(
+    Uri.parse(UrlHelper.githubApiUrl),
+    options: Options(
+      contentType: 'application/json',
+      headers: {
+        HttpHeaders.authorizationHeader: 'Bearer $token',
+      },
+    ),
+    data: jsonEncode({'query': query}),
+  );
+  if (response.statusCode == 200) {
+    var data = response.data;
+    if (data is String) {
+      data = jsonDecode(response.data);
     }
-  } on DioException catch (e) {
-    return dioError(context, e);
-  } catch (e) {
+    return context.res.json(data);
+  } else {
     return context.res.json({
-      'error': e.toString(),
+      'statusMessage': response.statusMessage,
+      'statusCode': response.statusCode,
     });
   }
+  // } on DioException catch (e) {
+  //   return dioError(context, e);
+  // } catch (e) {
+  //   return context.res.json({
+  //     'error': e.toString(),
+  //   });
+  // }
 }
 
 Future<dynamic> _getGithubContributes(context, Dio dio) async {
