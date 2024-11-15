@@ -41,12 +41,72 @@ Future<dynamic> main(final context) async {
     return await _getGithubContributes(context, dio);
   }
 
+  if (context.req.method == 'GET' && context.req.path == "/getUserInfo") {
+    return await _getUserInfo(context, dio);
+  }
+
   return context.res.json({
     'motto': 'Build like a team of hundreds_',
     'learn': 'https://appwrite.io/docs',
     'connect': 'https://appwrite.io/discord',
     'getInspired': 'https://builtwith.appwrite.io',
   });
+}
+
+Future<dynamic> _getUserInfo(context, Dio dio) async {
+  String token = '';
+
+  try {
+    token = _getToken(context);
+  } catch (e) {
+    return context.res.json({
+      'message': 'token error!',
+      'statusCode': 401,
+    });
+  }
+
+  try {
+    final query = '''
+       query {
+        viewer {
+          login
+          name
+          avatarUrl
+          bio
+          location
+        }
+      }
+    ''';
+
+    final response = await dio.postUri(
+      Uri.parse(UrlHelper.githubApiUrl),
+      options: Options(
+        contentType: 'application/json',
+        headers: {
+          HttpHeaders.authorizationHeader: 'Bearer $token',
+        },
+      ),
+      data: jsonEncode({'query': query}),
+    );
+    if (response.statusCode == 200) {
+      var data = response.data;
+      if (data is String) {
+        data = jsonDecode(response.data);
+      }
+      return context.res.json(data);
+    } else {
+      return context.res.json({
+        'statusMessage': response.statusMessage,
+        'statusCode': response.statusCode,
+      });
+    }
+  } on DioException catch (e) {
+    return dioError(context, e);
+  } catch (e) {
+    return context.res.json({
+      'error': e.toString(),
+    });
+  }
 }
 
 Future<dynamic> _getGithubContributes(context, Dio dio) async {
@@ -110,16 +170,7 @@ Future<dynamic> _getGithubContributes(context, Dio dio) async {
       });
     }
   } on DioException catch (e) {
-    return context.res.json({
-      'headers': jsonEncode(e.requestOptions.headers),
-      "token": token,
-      'error': e.error,
-      'message': e.message,
-    });
-  } on Exception catch (e) {
-    return context.res.json({
-      'error': e.toString(),
-    });
+    return dioError(context, e);
   } catch (e) {
     return context.res.json({
       'error': e.toString(),
@@ -142,4 +193,11 @@ String? _getQuery(dynamic context, {required String key}) {
   } else {
     return null;
   }
+}
+
+dynamic dioError(dynamic context, DioException e) {
+  return context.res.json({
+    'error': e.error,
+    'message': e.message,
+  });
 }
