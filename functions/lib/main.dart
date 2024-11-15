@@ -13,7 +13,9 @@ Future<dynamic> main(final context) async {
   final client = Client()
       .setEndpoint(Platform.environment['APPWRITE_FUNCTION_API_ENDPOINT'] ?? '')
       .setProject(Platform.environment['APPWRITE_FUNCTION_PROJECT_ID'] ?? '')
-      .setKey(context.req.headers['x-appwrite-key'] ?? '');
+      .setKey(context.req.headers[HttpHeaders.authorizationHeader] ??
+          context.req.headers['x-appwrite-key'] ??
+          '');
   final users = Users(client);
 
   try {
@@ -180,7 +182,9 @@ Future<dynamic> _getGithubContributes(context, Dio dio) async {
 
 String _getToken(dynamic context) {
   try {
-    return context.req.headers['authorization'].split(' ')[1].split(',')[0];
+    return context.req.headers[HttpHeaders.authorizationHeader]
+        .split(' ')[1]
+        .split(',')[0];
   } catch (e) {
     return '';
   }
