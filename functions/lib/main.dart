@@ -36,111 +36,9 @@ Future<dynamic> main(final context) async {
     return context.res.json({"tac": "Toe"});
   }
 
-  if (context.req.path == "/test") {
-    String query = '';
-    String queryString = '';
-
-    try {
-      query = context.req.query.toString();
-    } catch (e) {}
-
-    try {
-      queryString = context.req.queryString ?? '{}';
-    } catch (e) {}
-
-    return context.res.json({
-      'req': context.req.toString(),
-      'context': context.toString(),
-      'url': context.req.url.toString(),
-      'urlType': context.req.url.runtimeType.toString(),
-      'query': query,
-      'queryString': queryString,
-    });
-  }
-
   if (context.req.method == 'GET' &&
       context.req.path == "/getGithubContributions") {
-    Map<String, dynamic> queryParams = {};
-    String token = '';
-    String username = '';
-    try {
-      token = _getToken(context);
-    } catch (e) {
-      return context.res.json({
-        'message': 'token error!',
-      });
-    }
-    try {
-      queryParams = Uri.parse(context.req.url).queryParameters;
-    } catch (e) {
-      return context.res.json({
-        'message': 'query error!',
-      });
-    }
-    try {
-      username = queryParams['username'].toString();
-    } catch (e) {
-      return context.res.json({
-        'message': 'username error!',
-      });
-    }
-    try {
-      final query = '''
-        query {
-          user(login: "$username") {
-            contributionsCollection {
-              contributionCalendar {
-                totalContributions
-                weeks {
-                  contributionDays {
-                    date
-                    contributionCount
-                  }
-                }
-              }
-            }
-          }
-        }
-      ''';
-
-      final response = await dio.postUri(
-        Uri.parse(UrlHelper.githubApiUrl),
-        options: Options(
-          contentType: 'application/json',
-          headers: {
-            HttpHeaders.authorizationHeader: 'Bearer $token',
-          },
-        ),
-        data: jsonEncode({'query': query}),
-      );
-      if (response.statusCode == 200) {
-        var data = response.data;
-        if (data is String) {
-          data = jsonDecode(response.data);
-        }
-        return context.res.json(data);
-      } else {
-        return context.res.json({
-          'statusMessage': response.statusMessage,
-          'statusCode': response.statusCode,
-        });
-      }
-    } on DioException catch (e) {
-      return context.res.json({
-        'headers': jsonEncode(e.requestOptions.headers),
-        "token": token,
-        'error': e.error,
-        'message': e.message,
-      });
-    } on Exception catch (e) {
-      return context.res.json({
-        'error': e.toString(),
-      });
-    } catch (e) {
-      return context.res.json({
-        'error': e.toString(),
-      });
-    }
+    return await _getGithubContributes(context, dio);
   }
 
   return context.res.json({
@@ -151,10 +49,97 @@ Future<dynamic> main(final context) async {
   });
 }
 
+Future<dynamic> _getGithubContributes(context, Dio dio) async {
+  String token = '';
+  String username = '';
+  try {
+    token = _getToken(context);
+  } catch (e) {
+    return context.res.json({
+      'message': 'token error!',
+      'statusCode': 401,
+    });
+  }
+
+  try {
+    username = _getQuery(context, key: 'username') ?? '';
+  } catch (e) {
+    return context.res.json({
+      'message': 'username missing!',
+    });
+  }
+  try {
+    final query = '''
+      query {
+        user(login: "$username") {
+          contributionsCollection {
+            contributionCalendar {
+              totalContributions
+              weeks {
+                contributionDays {
+                  date
+                  contributionCount
+                }
+              }
+            }
+          }
+        }
+      }
+    ''';
+
+    final response = await dio.postUri(
+      Uri.parse(UrlHelper.githubApiUrl),
+      options: Options(
+        contentType: 'application/json',
+        headers: {
+          HttpHeaders.authorizationHeader: 'Bearer $token',
+        },
+      ),
+      data: jsonEncode({'query': query}),
+    );
+    if (response.statusCode == 200) {
+      var data = response.data;
+      if (data is String) {
+        data = jsonDecode(response.data);
+      }
+      return context.res.json(data);
+    } else {
+      return context.res.json({
+        'statusMessage': response.statusMessage,
+        'statusCode': response.statusCode,
+      });
+    }
+  } on DioException catch (e) {
+    return context.res.json({
+      'headers': jsonEncode(e.requestOptions.headers),
+      "token": token,
+      'error': e.error,
+      'message': e.message,
+    });
+  } on Exception catch (e) {
+    return context.res.json({
+      'error': e.toString(),
+    });
+  } catch (e) {
+    return context.res.json({
+      'error': e.toString(),
+    });
+  }
+}
+
 String _getToken(dynamic context) {
   try {
     return context.req.headers['authorization'].split(' ')[1].split(',')[0];
   } catch (e) {
     return '';
+  }
+}
+
+String? _getQuery(dynamic context, {required String key}) {
+  final queryParams = Uri.parse(context.req.url).queryParameters;
+  if (queryParams.containsKey(key)) {
+    return queryParams[key].toString();
+  } else {
+    return null;
   }
 }
