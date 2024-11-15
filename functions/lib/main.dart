@@ -199,5 +199,6 @@ dynamic dioError(dynamic context, DioException e) {
   return context.res.json({
     'error': e.error,
     'message': e.message,
+    'headers': jsonEncode(e.requestOptions.headers)
   });
 }
