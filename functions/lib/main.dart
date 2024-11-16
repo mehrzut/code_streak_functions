@@ -7,7 +7,9 @@ import 'package:starter_template/core/url_helper.dart';
 
 // This Appwrite function will be executed every time your function is triggered
 Future<dynamic> main(final context) async {
-  final Dio dio = Dio();
+  final Dio dio = Dio(BaseOptions(validateStatus: (status) {
+    return (status ?? 400) < 500;
+  }));
   // You can use the Appwrite SDK to interact with other services
   // For this example, we're using the Users service
   final client = Client()
