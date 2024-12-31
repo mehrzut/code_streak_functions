@@ -190,6 +190,7 @@ Future<dynamic> _getGithubContributes(context, Dio dio) async {
 
 Future<String> _loadUsername(context, Dio dio) async {
   var user = await _getUserInfo(context, dio);
+  context.log(user.toString() + user.runtimeType.toString());
   if (user is String) {
     user = jsonDecode(user);
   }
