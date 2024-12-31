@@ -129,13 +129,11 @@ Future<dynamic> _getGithubContributes(context, Dio dio) async {
   try {
     username = _getQuery(context, key: 'username') ?? '';
     if (username.isEmpty) {
-      final user = await _getUserInfo(context, dio);
-      username = user['data']['viewer']['login'];
+      username = await _loadUsername(context, dio);
     }
   } catch (e) {
     try {
-      final user = await _getUserInfo(context, dio);
-      username = user['data']['viewer']['login'];
+      username = await _loadUsername(context, dio);
     } catch (e) {
       return context.res.json({
         'message': 'username error!',
@@ -191,6 +189,14 @@ Future<dynamic> _getGithubContributes(context, Dio dio) async {
       'error': e.toString(),
     });
   }
+}
+
+Future<String> _loadUsername(context, Dio dio) async {
+  var user = await _getUserInfo(context, dio);
+  if (user is String) {
+    user = jsonDecode(user);
+  }
+  return user['data']['viewer']['login'];
 }
 
 String _getToken(dynamic context) {
