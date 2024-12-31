@@ -133,8 +133,15 @@ Future<dynamic> _getGithubContributes(context, Dio dio) async {
       username = user['data']['viewer']['login'];
     }
   } catch (e) {
-    final user = await _getUserInfo(context, dio);
-    username = user['data']['viewer']['login'];
+    try {
+      final user = await _getUserInfo(context, dio);
+      username = user['data']['viewer']['login'];
+    } catch (e) {
+      return context.res.json({
+        'message': 'username error!',
+        'statusCode': 400,
+      });
+    }
   }
   try {
     final query = '''
