@@ -129,16 +129,12 @@ Future<dynamic> _getGithubContributes(context, Dio dio) async {
   try {
     username = _getQuery(context, key: 'username') ?? '';
     if (username.isEmpty) {
-      return context.res.json({
-        'message': 'username missing!',
-        'url': context.req.url,
-      });
+      final user = await _getUserInfo(context, dio);
+      username = user['data']['viewer']['login'];
     }
   } catch (e) {
-    return context.res.json({
-      'message': 'username missing!',
-      'url': context.req.url,
-    });
+    final user = await _getUserInfo(context, dio);
+    username = user['data']['viewer']['login'];
   }
   try {
     final query = '''
@@ -194,10 +190,14 @@ String _getToken(dynamic context) {
   try {
     final token = context.req.headers['token'].split(' ')[1].split(',')[0];
     if (token.isNotEmpty) return token;
-    return context.req.headers[HttpHeaders.authorizationHeader].split(' ')[1].split(',')[0];
+    return context.req.headers[HttpHeaders.authorizationHeader]
+        .split(' ')[1]
+        .split(',')[0];
   } catch (e) {
     try {
-      return context.req.headers[HttpHeaders.authorizationHeader].split(' ')[1].split(',')[0];
+      return context.req.headers[HttpHeaders.authorizationHeader]
+          .split(' ')[1]
+          .split(',')[0];
     } catch (e) {
       return '';
     }
