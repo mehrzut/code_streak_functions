@@ -64,10 +64,13 @@ Future<dynamic> _getUserInfo(context, Dio dio) async {
   try {
     token = _getToken(context);
   } catch (e) {
-    return context.res.json({
-      'message': 'token error!',
-      'statusCode': 401,
-    });
+    return context.res.json(
+      {
+        'message': 'token error!',
+        'statusCode': 401,
+      },
+      status: 401,
+    );
   }
 
   try {
@@ -100,17 +103,20 @@ Future<dynamic> _getUserInfo(context, Dio dio) async {
       }
       return context.res.json(data);
     } else {
-      return context.res.json({
-        'statusMessage': response.statusMessage,
-        'statusCode': response.statusCode,
-      });
+      return context.res.json(
+        {
+          'statusMessage': response.statusMessage,
+          'statusCode': response.statusCode,
+        },
+        status: response.statusCode,
+      );
     }
   } on DioException catch (e) {
     return dioError(context, e, token);
   } catch (e) {
     return context.res.json({
       'error': e.toString(),
-    });
+    }, status: 500);
   }
 }
 
@@ -123,7 +129,7 @@ Future<dynamic> _getGithubContributes(context, Dio dio) async {
     return context.res.json({
       'message': 'token error!',
       'statusCode': 401,
-    });
+    }, status: 401);
   }
 
   try {
@@ -136,7 +142,7 @@ Future<dynamic> _getGithubContributes(context, Dio dio) async {
       'message': 'username error!',
       'statusCode': 400,
       'error': e.toString(),
-    });
+    }, status: 400);
   }
   try {
     final query = '''
@@ -177,14 +183,14 @@ Future<dynamic> _getGithubContributes(context, Dio dio) async {
       return context.res.json({
         'statusMessage': response.statusMessage,
         'statusCode': response.statusCode,
-      });
+      }, status: response.statusCode);
     }
   } on DioException catch (e) {
     return dioError(context, e, token);
   } catch (e) {
     return context.res.json({
       'error': e.toString(),
-    });
+    }, status: 500);
   }
 }
 
@@ -234,5 +240,5 @@ dynamic dioError(dynamic context, DioException e, String token) {
     'message': e.message,
     'headers': jsonEncode(e.requestOptions.headers),
     'token': token,
-  });
+  }, status: e.response?.statusCode);
 }
