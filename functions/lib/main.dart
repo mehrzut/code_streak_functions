@@ -64,12 +64,9 @@ Future<dynamic> _getUserInfo(context, Dio dio) async {
   try {
     token = _getToken(context);
   } catch (e) {
-    return context.res.json(
-      {
-        'message': 'token error!',
-        'statusCode': 401,
-      },
-      status: 401,
+    return context.res.text(
+      'Unauthorized',
+      401,
     );
   }
 
@@ -103,12 +100,9 @@ Future<dynamic> _getUserInfo(context, Dio dio) async {
       }
       return context.res.json(data);
     } else {
-      return context.res.json(
-        {
-          'statusMessage': response.statusMessage,
-          'statusCode': response.statusCode,
-        },
-        status: response.statusCode,
+      return context.res.text(
+        response.statusMessage,
+        response.statusCode,
       );
     }
   } on DioException catch (e) {
@@ -116,9 +110,7 @@ Future<dynamic> _getUserInfo(context, Dio dio) async {
     return dioError(context, e, token);
   } catch (e) {
     context.log(e.toString());
-    return context.res.json({
-      'error': e.toString(),
-    }, status: 500);
+    return context.res.text(e.toString(), 500);
   }
 }
 
@@ -128,10 +120,10 @@ Future<dynamic> _getGithubContributes(context, Dio dio) async {
   try {
     token = _getToken(context);
   } catch (e) {
-    return context.res.json({
-      'message': 'token error!',
-      'statusCode': 401,
-    }, status: 401);
+    return context.res.text(
+      'Unauthorized',
+      401,
+    );
   }
 
   try {
@@ -140,11 +132,7 @@ Future<dynamic> _getGithubContributes(context, Dio dio) async {
       username = await _loadUsername(context, dio);
     }
   } catch (e) {
-    return context.res.json({
-      'message': 'username error!',
-      'statusCode': 400,
-      'error': e.toString(),
-    }, status: 400);
+    return context.res.text('username error!', 400);
   }
   try {
     final query = '''
@@ -182,19 +170,17 @@ Future<dynamic> _getGithubContributes(context, Dio dio) async {
       }
       return context.res.json(data);
     } else {
-      return context.res.json({
-        'statusMessage': response.statusMessage,
-        'statusCode': response.statusCode,
-      }, status: response.statusCode);
+      return context.res.text(
+        response.statusMessage,
+        response.statusCode,
+      );
     }
   } on DioException catch (e) {
     context.log(e.toString());
     return dioError(context, e, token);
   } catch (e) {
     context.log(e.toString());
-    return context.res.json({
-      'error': e.toString(),
-    }, status: 500);
+    return context.res.json(e.toString(), 500);
   }
 }
 
@@ -241,10 +227,5 @@ String? _getQuery(dynamic context, {required String key}) {
 }
 
 dynamic dioError(dynamic context, DioException e, String token) {
-  return context.res.json({
-    'error': e.error,
-    'message': e.message,
-    'headers': jsonEncode(e.requestOptions.headers),
-    'token': token,
-  }, status: e.response?.statusCode);
+  return context.res.text(e.message, e.response?.statusCode);
 }
