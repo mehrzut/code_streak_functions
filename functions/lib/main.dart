@@ -116,7 +116,7 @@ Future<dynamic> _getUserInfo(context, Dio dio) async {
   } catch (e) {
     return context.res.json({
       'error': e.toString(),
-    }, status: 500);
+    }, status: 400);
   }
 }
 
@@ -190,7 +190,7 @@ Future<dynamic> _getGithubContributes(context, Dio dio) async {
   } catch (e) {
     return context.res.json({
       'error': e.toString(),
-    }, status: 500);
+    }, status: 400);
   }
 }
 
