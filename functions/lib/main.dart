@@ -112,11 +112,13 @@ Future<dynamic> _getUserInfo(context, Dio dio) async {
       );
     }
   } on DioException catch (e) {
+    context.log(e.toString());
     return dioError(context, e, token);
   } catch (e) {
+    context.log(e.toString());
     return context.res.json({
       'error': e.toString(),
-    }, status: 400);
+    }, status: 500);
   }
 }
 
@@ -186,11 +188,13 @@ Future<dynamic> _getGithubContributes(context, Dio dio) async {
       }, status: response.statusCode);
     }
   } on DioException catch (e) {
+    context.log(e.toString());
     return dioError(context, e, token);
   } catch (e) {
+    context.log(e.toString());
     return context.res.json({
       'error': e.toString(),
-    }, status: 400);
+    }, status: 500);
   }
 }
 
@@ -215,11 +219,13 @@ String _getToken(dynamic context) {
         .split(' ')[1]
         .split(',')[0];
   } catch (e) {
+    context.log(e.toString());
     try {
       return context.req.headers[HttpHeaders.authorizationHeader]
           .split(' ')[1]
           .split(',')[0];
     } catch (e) {
+      context.log(e.toString());
       return '';
     }
   }
