@@ -90,8 +90,10 @@ Future<dynamic> handleRemindersOnNewSession(context, Users users) async {
             .toList(),
       );
       context.log('scheduled push notification!: $result');
+      return context.res.text('success', 200);
     } catch (e) {
       context.log(e.toString());
+      return context.res.text(e.toString(), 400);
     }
   }
 }
