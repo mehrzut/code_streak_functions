@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dart_appwrite/dart_appwrite.dart';
-import 'package:starter_template/core/url_helper.dart';
+import 'package:starter_template/reminder_manager.dart';
+import 'package:starter_template/user_manager.dart';
 
 // This Appwrite function will be executed every time your function is triggered
 Future<dynamic> main(final context) async {
@@ -17,6 +17,7 @@ Future<dynamic> main(final context) async {
       .setProject(Platform.environment['APPWRITE_FUNCTION_PROJECT_ID'] ?? '')
       .setKey(context.req.headers['x-appwrite-key'] ?? '');
   final users = Users(client);
+  final messaging = Messaging(client);
 
   try {
     final response = await users.list();
@@ -43,11 +44,16 @@ Future<dynamic> main(final context) async {
 
   if (context.req.method == 'GET' &&
       context.req.path == "/getGithubContributions") {
-    return await _getGithubContributes(context, dio);
+    return await getGithubContributes(context, dio);
   }
 
   if (context.req.method == 'GET' && context.req.path == "/getUserInfo") {
-    return await _getUserInfo(context, dio);
+    return await getUserInfo(context, dio);
+  }
+
+  if (context.req.method == 'POST' &&
+      context.req.path == "/setRemindersForNewSession") {
+    return await handleRemindersOnNewSession(context, users);
   }
 
   return context.res.json({
@@ -58,166 +64,7 @@ Future<dynamic> main(final context) async {
   });
 }
 
-Future<dynamic> _getUserInfo(context, Dio dio) async {
-  String token = '';
-
-  try {
-    token = _getToken(context);
-  } catch (e) {
-    return context.res.text(
-      'Unauthorized',
-      401,
-    );
-  }
-
-  try {
-    final query = '''
-       query {
-        viewer {
-          login
-          name
-          avatarUrl
-          bio
-          location
-        }
-      }
-    ''';
-
-    final response = await dio.postUri(
-      Uri.parse(UrlHelper.githubApiUrl),
-      options: Options(
-        contentType: 'application/json',
-        headers: {
-          HttpHeaders.authorizationHeader: 'Bearer $token',
-        },
-      ),
-      data: jsonEncode({'query': query}),
-    );
-    if (response.statusCode == 200) {
-      var data = response.data;
-      if (data is String) {
-        data = jsonDecode(response.data);
-      }
-      return context.res.json(data);
-    } else {
-      return context.res.text(
-        response.statusMessage,
-        response.statusCode,
-      );
-    }
-  } on DioException catch (e) {
-    context.log(e.toString());
-    return dioError(context, e, token);
-  } catch (e) {
-    context.log(e.toString());
-    return context.res.text(e.toString(), 500);
-  }
-}
-
-Future<dynamic> _getGithubContributes(context, Dio dio) async {
-  String token = '';
-  String username = '';
-  try {
-    token = _getToken(context);
-  } catch (e) {
-    return context.res.text(
-      'Unauthorized',
-      401,
-    );
-  }
-
-  try {
-    username = _getQuery(context, key: 'username') ?? '';
-    if (username.isEmpty) {
-      username = await _loadUsername(context, dio);
-    }
-  } catch (e) {
-    return context.res.text('username error!', 400);
-  }
-  try {
-    final query = '''
-      query {
-        user(login: "$username") {
-          contributionsCollection {
-            contributionCalendar {
-              totalContributions
-              weeks {
-                contributionDays {
-                  date
-                  contributionCount
-                }
-              }
-            }
-          }
-        }
-      }
-    ''';
-
-    final response = await dio.postUri(
-      Uri.parse(UrlHelper.githubApiUrl),
-      options: Options(
-        contentType: 'application/json',
-        headers: {
-          HttpHeaders.authorizationHeader: 'Bearer $token',
-        },
-      ),
-      data: jsonEncode({'query': query}),
-    );
-    if (response.statusCode == 200) {
-      var data = response.data;
-      if (data is String) {
-        data = jsonDecode(response.data);
-      }
-      return context.res.json(data);
-    } else {
-      return context.res.text(
-        response.statusMessage,
-        response.statusCode,
-      );
-    }
-  } on DioException catch (e) {
-    context.log(e.toString());
-    return dioError(context, e, token);
-  } catch (e) {
-    context.log(e.toString());
-    return context.res.json(e.toString(), 500);
-  }
-}
-
-Future<String> _loadUsername(context, Dio dio) async {
-  var user = await _getUserInfo(context, dio);
-  context.log(user.toString() + user.runtimeType.toString());
-  if (user is String) {
-    user = jsonDecode(user);
-  }
-  final username = user['data']['viewer']['login'];
-  if (username is String) {
-    return username;
-  }
-  throw Exception('username not found: $user');
-}
-
-String _getToken(dynamic context) {
-  try {
-    final token = context.req.headers['token'].split(' ')[1].split(',')[0];
-    if (token.isNotEmpty) return token;
-    return context.req.headers[HttpHeaders.authorizationHeader]
-        .split(' ')[1]
-        .split(',')[0];
-  } catch (e) {
-    context.log(e.toString());
-    try {
-      return context.req.headers[HttpHeaders.authorizationHeader]
-          .split(' ')[1]
-          .split(',')[0];
-    } catch (e) {
-      context.log(e.toString());
-      return '';
-    }
-  }
-}
-
-String? _getQuery(dynamic context, {required String key}) {
+String? getQuery(dynamic context, {required String key}) {
   final queryParams = Uri.parse(context.req.url).queryParameters;
   if (queryParams.containsKey(key)) {
     return queryParams[key].toString();
