@@ -17,7 +17,6 @@ Future<dynamic> main(final context) async {
       .setProject(Platform.environment['APPWRITE_FUNCTION_PROJECT_ID'] ?? '')
       .setKey(context.req.headers['x-appwrite-key'] ?? '');
   final users = Users(client);
-  final messaging = Messaging(client);
 
   try {
     final response = await users.list();
@@ -53,7 +52,7 @@ Future<dynamic> main(final context) async {
 
   if (context.req.method == 'POST' &&
       context.req.path == "/setRemindersForNewSession") {
-    return await handleRemindersOnNewSession(context, users);
+    return await handleRemindersOnNewSession(context, dio);
   }
 
   return context.res.json({
