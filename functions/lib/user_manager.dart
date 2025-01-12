@@ -146,8 +146,7 @@ Future<String> loadUsername(context, Dio dio) async {
 
 String getToken(dynamic context) {
   try {
-    final rawToken = context.req.headers['token'];
-    if (rawToken == null || rawToken.isEmpty) return '';
+    final rawToken = context.req.headers['token'] ?? '';
     final token = rawToken.split(' ')[1].split(',')[0];
     if (token.isNotEmpty) return token;
     return context.req.headers[HttpHeaders.authorizationHeader]
