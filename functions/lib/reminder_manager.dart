@@ -16,7 +16,10 @@ Future<dynamic> handleRemindersOnNewSession(context, Dio dio) async {
       401,
     );
   }
+  context.log('token: $token');
   try {
+    context.log(
+        'calling api: ${UrlHelper.reminderManagerUrl}setRemindersForNewSession');
     final response = await dio.postUri(
       Uri.parse('${UrlHelper.reminderManagerUrl}setRemindersForNewSession'),
       options: Options(
@@ -27,6 +30,7 @@ Future<dynamic> handleRemindersOnNewSession(context, Dio dio) async {
       ),
       data: context.req.bodyText,
     );
+    context.log('api response data: ${response.data}');
     if (response.statusCode == 200) {
       var data = response.data;
       if (data is String) {
