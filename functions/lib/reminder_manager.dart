@@ -34,7 +34,11 @@ Future<dynamic> handleRemindersOnNewSession(context, Dio dio) async {
     if (response.statusCode == 200) {
       var data = response.data;
       if (data is String) {
-        data = jsonDecode(response.data);
+        try {
+          data = jsonDecode(response.data);
+        } catch (e) {
+          return context.res.text(response.data, response.statusCode);
+        }
       }
       return context.res.json(data);
     } else {
