@@ -87,7 +87,7 @@ Future<dynamic> getGithubContributes(context, Dio dio) async {
   try {
     from = getQuery(context, key: 'from') ?? '';
   } catch (e) {
-    from = now.subtract(Duration(days: 365)).toIso8601String();
+    from = now.subtract(Duration(days: 364)).toIso8601String();
   }
   try {
     until = getQuery(context, key: 'until') ?? '';
@@ -97,8 +97,8 @@ Future<dynamic> getGithubContributes(context, Dio dio) async {
   try {
     final query = '''
       query {
-        user(login: $username) {
-          contributionsCollection(from: $from, to: $until) {
+        user(login: "$username") {
+          contributionsCollection(from: "$from", to: "$until") {
             contributionCalendar {
               totalContributions
               weeks {
