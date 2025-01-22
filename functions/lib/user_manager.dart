@@ -85,7 +85,7 @@ Future<dynamic> getGithubContributes(context, Dio dio) async {
     final query = '''
       query {
         user(login: "$username") {
-          contributionsCollection {
+          contributionsCollection(from: ${DateTime(2008, 1, 1).toUtc().toIso8601String()}, to: ${DateTime.now().toUtc().toIso8601String()}) {
             contributionCalendar {
               totalContributions
               weeks {
