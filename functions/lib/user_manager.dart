@@ -86,11 +86,17 @@ Future<dynamic> getGithubContributes(context, Dio dio) async {
   final now = DateTime.now();
   try {
     from = getQuery(context, key: 'from') ?? '';
+    if (from.isEmpty) {
+      from = now.subtract(Duration(days: 364)).toIso8601String();
+    }
   } catch (e) {
     from = now.subtract(Duration(days: 364)).toIso8601String();
   }
   try {
     until = getQuery(context, key: 'until') ?? '';
+    if (until.isEmpty) {
+      until = now.toIso8601String();
+    }
   } catch (e) {
     until = now.toIso8601String();
   }
