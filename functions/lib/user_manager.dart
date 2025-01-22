@@ -83,21 +83,21 @@ Future<dynamic> getGithubContributes(context, Dio dio) async {
   } catch (e) {
     return context.res.text('username error!', 400);
   }
+  final now = DateTime.now();
   try {
     from = getQuery(context, key: 'from') ?? '';
   } catch (e) {
-    from = '2008-01-01';
+    from = now.subtract(Duration(days: 365)).toIso8601String();
   }
   try {
     until = getQuery(context, key: 'until') ?? '';
   } catch (e) {
-    final now = DateTime.now();
-    until = '${now.year}-${now.month}-${now.day}';
+    until = now.toIso8601String();
   }
   try {
     final query = '''
       query {
-        user(login: "$username") {
+        user(login: $username) {
           contributionsCollection(from: $from, to: $until) {
             contributionCalendar {
               totalContributions
